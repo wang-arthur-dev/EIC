@@ -11,28 +11,22 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CustomButton, CustomInput } from '../../components/common';
-import { signup } from '../../services/auth';
-import { SignUpRequest, AuthStackParamList } from '../../types';
+import { login } from '../../services/auth';
+import { LoginRequest, AuthStackParamList } from '../../types';
 
-type SignUpScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'SignUp'>;
+type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
-const SignUpScreen: React.FC = () => {
-  const navigation = useNavigation<SignUpScreenNavigationProp>();
-  const [formData, setFormData] = useState<SignUpRequest>({
+const LoginScreen: React.FC = () => {
+  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const [formData, setFormData] = useState<LoginRequest>({
     email: '',
     password: '',
-    name: '',
   });
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
-
-    if (!formData.name) {
-      newErrors.name = '이름을 입력해주세요.';
-    }
 
     if (!formData.email) {
       newErrors.email = '이메일을 입력해주세요.';
@@ -46,34 +40,28 @@ const SignUpScreen: React.FC = () => {
       newErrors.password = '비밀번호는 6자 이상이어야 합니다.';
     }
 
-    if (!confirmPassword) {
-      newErrors.confirmPassword = '비밀번호 확인을 입력해주세요.';
-    } else if (formData.password !== confirmPassword) {
-      newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignUp = async () => {
+  const handleLogin = async () => {
     if (!validateForm()) return;
 
     setLoading(true);
     try {
-      const response = await signup(formData);
-      console.log('회원가입 성공:', response);
-      // 회원가입 성공 시 앱이 자동으로 메인 화면으로 이동합니다
-      Alert.alert('성공', '회원가입이 완료되었습니다.');
+      const response = await login(formData);
+      console.log('로그인 성공:', response);
+      // 로그인 성공 시 앱이 자동으로 메인 화면으로 이동합니다
+      Alert.alert('성공', '로그인되었습니다.');
     } catch (error) {
-      console.error('회원가입 실패:', error);
-      Alert.alert('오류', '회원가입에 실패했습니다. 다시 시도해주세요.');
+      console.error('로그인 실패:', error);
+      Alert.alert('오류', '로그인에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof SignUpRequest, value: string) => {
+  const handleInputChange = (field: keyof LoginRequest, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // 에러 메시지 제거
     if (errors[field]) {
@@ -81,15 +69,8 @@ const SignUpScreen: React.FC = () => {
     }
   };
 
-  const handleConfirmPasswordChange = (value: string) => {
-    setConfirmPassword(value);
-    if (errors.confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: '' }));
-    }
-  };
-
-  const handleLoginPress = () => {
-    navigation.navigate('Login');
+  const handleSignUpPress = () => {
+    navigation.navigate('SignUp');
   };
 
   return (
@@ -100,22 +81,13 @@ const SignUpScreen: React.FC = () => {
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>회원가입</Text>
+            <Text style={styles.title}>로그인</Text>
             <Text style={styles.subtitle}>
-              새로운 계정을 만들어 서비스를 이용하세요
+              계정에 로그인하여 서비스를 이용하세요
             </Text>
           </View>
 
           <View style={styles.form}>
-            <CustomInput
-              label="이름"
-              placeholder="이름을 입력하세요"
-              value={formData.name}
-              onChangeText={(value) => handleInputChange('name', value)}
-              autoCapitalize="words"
-              error={errors.name}
-            />
-
             <CustomInput
               label="이메일"
               placeholder="이메일을 입력하세요"
@@ -135,26 +107,17 @@ const SignUpScreen: React.FC = () => {
               error={errors.password}
             />
 
-            <CustomInput
-              label="비밀번호 확인"
-              placeholder="비밀번호를 다시 입력하세요"
-              value={confirmPassword}
-              onChangeText={handleConfirmPasswordChange}
-              secureTextEntry
-              error={errors.confirmPassword}
-            />
-
             <CustomButton
-              title="회원가입"
-              onPress={handleSignUp}
+              title="로그인"
+              onPress={handleLogin}
               loading={loading}
-              style={styles.signUpButton}
+              style={styles.loginButton}
             />
 
             <View style={styles.footer}>
-              <Text style={styles.footerText}>이미 계정이 있으신가요? </Text>
-              <Text style={styles.linkText} onPress={handleLoginPress}>
-                로그인
+              <Text style={styles.footerText}>계정이 없으신가요? </Text>
+              <Text style={styles.linkText} onPress={handleSignUpPress}>
+                회원가입
               </Text>
             </View>
           </View>
@@ -197,7 +160,7 @@ const styles = StyleSheet.create({
   form: {
     flex: 1,
   },
-  signUpButton: {
+  loginButton: {
     marginTop: 24,
   },
   footer: {
@@ -216,4 +179,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignUpScreen;
+export default LoginScreen; 
