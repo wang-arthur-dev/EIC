@@ -1,2 +1,1 @@
-# EIC
-Economic in Class
+찬양인도자들을 위한 콘티 구성 어플
